@@ -82,4 +82,11 @@ clean:
 install: $(LIBRARY)
 	cp $(LIBRARY) $(SWIPL_BIN_LIB)
 
-.PHONY: all clean check
+.PHONY: directories all clean check
+
+directories: ${OBJ}
+
+MKDIR_P = mkdir -p
+
+${OUT_DIR}:
+	${MKDIR_P} ${OUT_DIR}
