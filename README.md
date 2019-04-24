@@ -1,2 +1,5 @@
 # bousi_pack
-Bousi\~Prolog (aka BPL) lifted to swipl:pack_install, a step to Bousi\~Prolog on SWISH
+Bousi\~Prolog (aka BPL) lifted to swipl:pack_install, a step to Bousi\~Prolog on SWISH.
+
+You can find more on Bousi\~Prolog from this post
+https://swi-prolog.discourse.group/t/bpl-3-2-released/519
