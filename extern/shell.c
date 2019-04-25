@@ -7,12 +7,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef _WIN32
-#	include <editline/readline.h>
-#	include <histedit.h>
-#else
-#	include "leditwin.h"
+
+#ifdef DONT_USE_SWIPL_IO
+ #ifndef _WIN32
+ #	include <editline/readline.h>
+ #	include <histedit.h>
+ #else
+ #	include "leditwin.h"
+ #endif
 #endif
+
 #include "shell.h"
 #include "array.h"
 #include "bool.h"
@@ -130,8 +134,12 @@ foreign_t pl_read_shell_line(term_t tPrompt, term_t tString, term_t tArguments) 
 		/*rl_bind_key('\t', rl_complete);*/
 	}
 
+Sputs(sPromptChars);
+sLineChars = strdup("hello world");
+#if 0
 	/* reads a line from standard input */
 	sLineChars = readline(sPromptChars);
+#endif
 
 	if(sLineChars != NULL) {
 

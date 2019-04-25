@@ -127,7 +127,6 @@ read_shell_line(Prompt, String, Arguments) :-
 % 	foreign:ext_read_shell_line(Prompt, String, ArgumentsWithQuotes),
 	utilities:remove_quotes(ArgumentsWithQuotes, Arguments).
 
-	
 pl_read_shell_line(Prompt, String, ArgumentsWithQuotes) :-
   flush_output,
   write(Prompt),
