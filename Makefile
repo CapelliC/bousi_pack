@@ -1,88 +1,63 @@
 # running Bousi~Prolog as a pack
 #
 # CapelliC 2019
+# with special help by Jan Wielemaker
 #
 
 # SWIARCH,PACKSODIR,SOEXT expected to be set by pack_install
+# defaults based on my Linux environment, where swipl was built by source
+
 ifeq ($(SWIARCH),)
  SWIARCH = x86_64-linux
 endif
 
 ifeq ($(PACKSODIR),)
- PACKSODIR = lib/$(SWIARCH)
+ PACKSODIR = $(HOME)/lib/swipl/lib/$(SWIARCH)
 endif
 
 ifeq ($(SOEXT),)
  SOEXT = so
 endif
 
-LIBRARYNAME = external
-LIBRARY = $(LIBRARYNAME).$(SOEXT)
-
-ifeq ($(CFLAGS),)
-#seems pack_install doesn't get PKG_CONFIG_PATH ?
-#CFLAGS =  -c -fPIC `pkg-config --cflags swipl` 
- CXFLAGS =  -c -fPIC -I$(HOME)/lib/swipl/include
-else
- CXFLAGS =  -c $(CFLAGS)
+ifeq ($(LDSOFLAGS),)
+ LDSOFLAGS = -shared -fPIC -L$(PACKSODIR) -lswipl
 endif
 
-SWIPL_BIN_LIB = $(HOME)/lib/swipl/$(PACKSODIR)
+# this is not mentioned by Jan
+# https://swi-prolog.discourse.group/t/bpl-3-2-released/519/4
+ifeq ($(CFLAGS),)
+ CFLAGS = -c -fPIC -I$(HOME)/lib/swipl/include
+endif
 
-LDFLAGS = -shared -fPIC -L$(SWIPL_BIN_LIB) -lswipl
+# note: was external.so
+# also changed in foreign.pl and bousi_pack.pl
+SOBJ = bousi_support.$(SOEXT)
+
+all: $(SOBJ)
 
 SRC = ./extern
-OBJ = ./build
 
-all: directories $(LIBRARY)
+OBJ = \
+	$(SRC)/closure.o \
+	$(SRC)/blocks.o \
+	$(SRC)/fuzzysets.o \
+	$(SRC)/array.o \
+	$(SRC)/lexical.o \
+	$(SRC)/tokenize.o \
+	$(SRC)/shell.o \
+	$(SRC)/install.o
 
-OBJS = \
-	$(OBJ)/closure.o \
-	$(OBJ)/blocks.o \
-	$(OBJ)/fuzzysets.o \
-	$(OBJ)/array.o \
-	$(OBJ)/lexical.o \
-	$(OBJ)/tokenize.o \
-	$(OBJ)/shell.o \
-	$(OBJ)/install.o
-
-$(OBJ)/closure.o: $(SRC)/closure.c $(SRC)/closure.h $(SRC)/array.h $(SRC)/bool.h
-	$(CC) $(CXFLAGS) -o$@ $<
-
-$(OBJ)/blocks.o: $(SRC)/blocks.c $(SRC)/array.h $(SRC)/bool.h $(SRC)/closure.h $(SRC)/blocks.h
-	$(CC) $(CXFLAGS) -o$@ $<
-
-$(OBJ)/fuzzysets.o: $(SRC)/fuzzysets.c $(SRC)/fuzzysets.h $(SRC)/array.h $(SRC)/bool.h
-	$(CC) $(CXFLAGS) -o$@ $<
-
-$(OBJ)/array.o: $(SRC)/array.c $(SRC)/array.h
-	$(CC) $(CXFLAGS) -o$@ $<
-
-$(OBJ)/lexical.o: $(SRC)/lexical.c $(SRC)/lexical.h $(SRC)/bool.h
-	$(CC) $(CXFLAGS) -o$@ $<
-
-$(OBJ)/tokenize.o: $(SRC)/tokenize.c $(SRC)/tokenize.h $(SRC)/array.h $(SRC)/lexical.h
-	$(CC) $(CXFLAGS) -o$@ $<
-
-$(OBJ)/shell.o: $(SRC)/shell.c $(SRC)/shell.h $(SRC)/bool.h
-	$(CC) $(CXFLAGS) -o$@ $<
-
-$(OBJ)/install.o: $(SRC)/install.c
-	$(CC) $(CXFLAGS) -o$@ $<
-
-$(LIBRARY): $(OBJS)
-	swipl-ld $(LDFLAGS) -o $@ $^
+$(SOBJ): $(OBJ)
+	swipl-ld $(LDSOFLAGS) -o $@ $^
 
 # not sure it's required
 check:
 
 clean:
-	rm -f $(OBJS) $(LIBRARY) $(SWIPL_BIN_LIB)/$(LIBRARY)
+	rm -f $(OBJ) $(SOBJ) $(PACKSODIR)/$(SOBJ)
 
-install: $(LIBRARY)
-	cp $(LIBRARY) $(SWIPL_BIN_LIB)
+install: $(SOBJ)
+	mkdir -p $(PACKSODIR)
+	cp $(SOBJ) $(PACKSODIR)
 
-.PHONY: directories all clean check
-
-directories:
-	mkdir -p ${OBJ}
+.PHONY: all clean check

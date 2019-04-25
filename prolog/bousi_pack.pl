@@ -6,7 +6,7 @@
 
 :- module(bousi_pack, [bousi_pack/0]).
 
-% :- initialization use_foreign_library(foreign(external)).
+% :- initialization use_foreign_library(foreign(bousi_support)).
 :- use_module('source/bousi.pl').
 
 bousi_pack :-

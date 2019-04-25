@@ -5,7 +5,7 @@
 		load_foreign_extension/0
    ]).
 
-:- initialization use_foreign_library(foreign(external)).
+:- initialization use_foreign_library(foreign(bousi_support)).
 
 % :- use_module(library(shlib)).
 
